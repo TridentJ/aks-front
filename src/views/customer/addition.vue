@@ -115,6 +115,8 @@ const deleteCustomerContactForm = (index: number) => {
   //const index = form_customer_contact.indexOf(item);
   if (index >= 0) {
     formCustomerContact.value.splice(index, 1);
+  } else {
+    ElMessage.error("删除失败！");
   }
 };
 
@@ -731,7 +733,7 @@ const customerContactsState = [
 
     <br />
     <el-row justify="center">
-      <el-col :span="8">
+      <el-col :span="4">
         <el-button type="primary" @click="addCustomer(baseFormRef)"
           ><IconifyIconOffline :icon="SaveFill" />&nbsp;&nbsp;提交</el-button
         >

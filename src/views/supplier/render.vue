@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { http } from "@/utils/http";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { ElMessage } from "element-plus";
+import { Edit } from "@element-plus/icons-vue";
 import {
   SupplierBaseInfo,
   InvoiceInfo,
@@ -16,7 +17,7 @@ defineOptions({
 });
 
 //获取传递的参数
-const { initToDetail, getParameter } = useDetail();
+const { initToDetail, getParameter, toDetail } = useDetail();
 initToDetail("render");
 //const route = useRoute();
 const supplierId = getParameter.id;
@@ -87,6 +88,19 @@ const getSupplierContacts = () => {
     });
 };
 
+const editSupplier = () => {
+  let supplierNameLittle = baseInfoData.value.supplierName;
+  if (baseInfoData.value.supplierName.length > 10) {
+    supplierNameLittle = baseInfoData.value.supplierName.substring(0, 10) + "...";
+  }
+  toDetail(
+    {
+      id: supplierId,
+      supplierName: supplierNameLittle
+    },
+    "edit"
+  );
+};
 //获取基础信息
 http
   .request<AjaxResponse>("get", "/api/supplier/show?id=" + supplierId)
@@ -420,6 +434,12 @@ http
         </template>
       </el-tab-pane>
     </el-tabs>
+    <br/>
+    <el-row justify="center">
+      <el-col :span="4">
+        <el-button type="primary" :icon="Edit" @click="editSupplier">编辑</el-button>
+      </el-col>
+    </el-row>
   </el-card>
 </template>
 

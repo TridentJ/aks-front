@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { http } from "@/utils/http";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { ElMessage } from "element-plus";
+import { Edit } from "@element-plus/icons-vue";
 import {
   CustomerBaseInfo,
   InvoiceInfo,
@@ -16,7 +17,7 @@ defineOptions({
 });
 
 //获取传递的参数
-const { initToDetail, getParameter } = useDetail();
+const { initToDetail, getParameter, toDetail } = useDetail();
 initToDetail("render");
 //const route = useRoute();
 const customerId = getParameter.id;
@@ -85,6 +86,20 @@ const getCustomerContacts = () => {
         customerContactInfoData.value = response.data;
       }
     });
+};
+
+const editCustomer = () => {
+  let customerNameLittle = baseInfoData.value.customerName;
+  if (baseInfoData.value.customerName.length > 10) {
+    customerNameLittle = baseInfoData.value.customerName.substring(0, 10) + "...";
+  }
+  toDetail(
+    {
+      id: customerId,
+      supplierName: customerNameLittle
+    },
+    "edit"
+  );
 };
 
 //获取基础信息
@@ -429,6 +444,12 @@ const changeTable = (tab, event) => {
         </template>
       </el-tab-pane>
     </el-tabs>
+    <br/>
+    <el-row justify="center">
+      <el-col :span="4">
+        <el-button type="primary" :icon="Edit" @click="editCustomer">编辑</el-button>
+      </el-col>
+    </el-row>
   </el-card>
 </template>
 

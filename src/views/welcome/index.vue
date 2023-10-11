@@ -2,6 +2,7 @@
 defineOptions({
   name: "Welcome"
 });
+//window.location.reload();
 </script>
 
 <template>

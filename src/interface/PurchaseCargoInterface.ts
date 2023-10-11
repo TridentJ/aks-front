@@ -1,0 +1,43 @@
+export type PurchaseCargo = {
+  id: number;
+  purchaseId: number;
+  cargoId: number;
+  num: number;
+  usedNum: number;
+  availableNum: number;
+  price: number;
+  totalPrice: number;
+  balanceCost: number;
+  balanceCostSaleCargoId: number;
+  expressCompany: string;
+  expressId: string;
+  deliverAddress: string;
+  state: number;
+  createTime: string;
+  updateTime: string;
+  comments: string;
+};
+
+export type PurchaseCargoFull = {
+  id: number;
+  purchaseId: number;
+  cargoId: number;
+  cargoName: string;
+  description: string;
+  brand: string;
+  cargoType: string;
+  num: number;
+  usedNum: number;
+  availableNum: number;
+  price: number;
+  totalPrice: number;
+  balanceCost: number;
+  balanceCostSaleCargoId: number;
+  expressCompany: string;
+  expressId: string;
+  deliverAddress: string;
+  state: number;
+  createTime: string;
+  updateTime: string;
+  comments: string;
+};

@@ -122,6 +122,8 @@ const deleteInvoiceForm = (index: number) => {
   // }
   if (index >= 0) {
     formInvoice.value.splice(index, 1);
+  } else {
+    ElMessage.error("删除失败！");
   }
 };
 
@@ -167,6 +169,8 @@ const deleteSupplierContactForm = (index: number) => {
   //const index = form_supplier_contact.indexOf(item);
   if (index >= 0) {
     formSupplierContact.value.splice(index, 1);
+  } else {
+    ElMessage.error("删除失败！");
   }
 };
 
@@ -788,7 +792,7 @@ const supplierContactsState = [
 
     <br />
     <el-row justify="center">
-      <el-col :span="8">
+      <el-col :span="4">
         <el-button type="primary" @click="addSupplier(baseFormRef)"
           ><IconifyIconOffline :icon="SaveFill" />&nbsp;&nbsp;提交</el-button
         >

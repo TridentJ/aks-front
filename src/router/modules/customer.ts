@@ -41,7 +41,7 @@ export default {
       meta: {
         title: "客户详情",
         showLink: false
-        //activePath: "/customer/list"
+        //activePath: "/customer"
       }
     },
     {
