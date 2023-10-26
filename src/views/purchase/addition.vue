@@ -118,6 +118,8 @@ onMounted(() => {
 
 const supplierCallBack = supplier => {
   if (
+    supplier.supplierName != undefined &&
+    supplier.supplierName != "" &&
     supplier.supplierName
       .toLowerCase()
       .includes(supplierSearchInfo.value.toLowerCase())
@@ -125,6 +127,8 @@ const supplierCallBack = supplier => {
     return true;
   }
   if (
+    supplier.supplierNumber != undefined &&
+    supplier.supplierNumber != "" &&
     supplier.supplierNumber
       .toLowerCase()
       .includes(supplierSearchInfo.value.toLowerCase())
@@ -210,6 +214,7 @@ const getSupplierList = () => {
       }
     });
 };
+/*
 
 const test = () => {
   stepActive.value = 1;
@@ -218,6 +223,7 @@ const test = () => {
   purchaseId = 0;
   getCargoList();
 };
+*/
 
 const addPurchase = () => {
   http
@@ -410,19 +416,28 @@ const deleteCargoForm = (index: number) => {
 
 const cargoCallBack = cargo => {
   if (
+    cargo.cargoName != undefined &&
+    cargo.cargoName != "" &&
     cargo.cargoName.toLowerCase().includes(cargoSearchInfo.value.toLowerCase())
   ) {
     return true;
   }
   if (
+    cargo.cargoType != undefined &&
+    cargo.cargoType != "" &&
     cargo.cargoType.toLowerCase().includes(cargoSearchInfo.value.toLowerCase())
   ) {
     return true;
   }
-  if (cargo.brand.toLowerCase().includes(cargoSearchInfo.value.toLowerCase())) {
+  if (
+    cargo.brand != undefined &&
+    cargo.brand != "" &&
+    cargo.brand.toLowerCase().includes(cargoSearchInfo.value.toLowerCase())) {
     return true;
   }
   if (
+    cargo.description != undefined &&
+    cargo.description != "" &&
     cargo.description
       .toLowerCase()
       .includes(cargoSearchInfo.value.toLowerCase())
@@ -1165,9 +1180,6 @@ const stateSelect = [
           </el-button>
           <el-button type="warning" @click="resetPurchase()">
             <IconifyIconOffline :icon="EraseFill" />&nbsp;&nbsp;重置
-          </el-button>
-          <el-button type="warning" @click="test()">
-            <IconifyIconOffline :icon="EraseFill" />&nbsp;&nbsp;test
           </el-button>
         </el-col>
       </el-row>

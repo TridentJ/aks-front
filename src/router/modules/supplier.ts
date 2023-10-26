@@ -40,7 +40,8 @@ export default {
       component: () => import("@/views/supplier/render.vue"),
       meta: {
         title: "供应商详情",
-        showLink: false
+        showLink: false,
+        dynamicLevel: 3
         //activePath: "/supplier/list"
       }
     },
@@ -50,7 +51,8 @@ export default {
       component: () => import("@/views/supplier/edit.vue"),
       meta: {
         title: "修改供应商",
-        showLink: false
+        showLink: false,
+        dynamicLevel: 3
       }
     }
   ]

@@ -60,10 +60,11 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               message("登录成功", { type: "success" });
             });
              **/
+            message("登录成功", { type: "success" });
+            loading.value = false;
             usePermissionStoreHook().handleWholeMenus([]);
             addPathMatch();
             router.push("/");
-            message("登录成功", { type: "success" });
           } else {
             //登录失败
             message(res.message, { type: "error" });

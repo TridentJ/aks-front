@@ -40,7 +40,8 @@ export default {
       component: () => import("@/views/customer/render.vue"),
       meta: {
         title: "客户详情",
-        showLink: false
+        showLink: false,
+        dynamicLevel: 3
         //activePath: "/customer"
       }
     },
@@ -50,7 +51,8 @@ export default {
       component: () => import("@/views/customer/edit.vue"),
       meta: {
         title: "修改客户",
-        showLink: false
+        showLink: false,
+        dynamicLevel: 3
       }
     }
   ]

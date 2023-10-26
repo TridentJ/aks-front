@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { Action, FormInstance, FormRules } from "element-plus";
 import SaveFill from "@iconify-icons/ri/save-3-fill";
 import EraseFill from "@iconify-icons/ri/delete-bin-5-fill";
@@ -29,9 +29,6 @@ initToDetail("edit");
 //const route = useRoute();
 const supplierId = getParameter.id;
 //console.log("edit supplierId:", supplierId);
-if (supplierId == undefined) {
-  ElMessage.error("需提供供应商信息！");
-}
 
 const submitState = ref<boolean>(false);
 
@@ -186,21 +183,33 @@ const getSupplierContacts = () => {
       }
     });
 };
+
 //获取信息
-http
-  .request<AjaxResponse>("get", "/api/supplier/show?id=" + supplierId)
-  .then(function (response) {
-    if (response.code != 0) {
-      ElMessage.error(response.message);
-    } else {
-      //console.log(response.data);
-      formBase.value = response.data;
-      //获取发票信息
-      getInvoiceInfo();
-      //获取联系人信息
-      getSupplierContacts();
-    }
-  });
+const getSupplier = () => {
+  if (supplierId == undefined) {
+    ElMessage.error("需提供供应商信息！");
+  } else {
+    //获取基础信息
+    http
+      .request<AjaxResponse>("get", "/api/supplier/show?id=" + supplierId)
+      .then(function (response) {
+        if (response.code != 0) {
+          ElMessage.error(response.message);
+        } else {
+          console.log(response.data);
+          formBase.value = response.data;
+          //获取发票信息
+          getInvoiceInfo();
+          //获取联系人信息
+          getSupplierContacts();
+        }
+      });
+  }
+};
+
+onBeforeMount(() => {
+  getSupplier();
+});
 
 const addOrUpdateInvoiceInfo = async index => {
   let result = 0;
@@ -427,7 +436,13 @@ const successUpdateSupplier = () => {
       useMultiTagsStoreHook().handleTags("splice", "/supplier/edit");
       //切换到最后一个标签
       const newRoute = useMultiTagsStoreHook().handleTags("slice");
-      router.push({ path: newRoute[0].path });
+      if (newRoute[0]?.query) {
+        router.push({ name: newRoute[0].name, query: newRoute[0].query });
+      } else if (newRoute[0]?.params) {
+        router.push({ name: newRoute[0].name, params: newRoute[0].params });
+      } else {
+        router.push({ path: newRoute[0].path });
+      }
     });
 };
 

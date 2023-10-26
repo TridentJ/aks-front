@@ -1,6 +1,6 @@
 <script setup lang="ts">
 //import axios from "axios";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { http } from "@/utils/http";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { ElMessage } from "element-plus";
@@ -22,9 +22,7 @@ initToDetail("render");
 //const route = useRoute();
 const supplierId = getParameter.id;
 //console.log("render supplierId:", supplierId);
-if (supplierId == undefined) {
-  ElMessage.error("需提供供应商信息！");
-}
+
 //console.log("route:" + route.query.id);
 
 const baseInfoData = ref<SupplierBaseInfo>({
@@ -101,22 +99,32 @@ const editSupplier = () => {
     "edit"
   );
 };
-//获取基础信息
-http
-  .request<AjaxResponse>("get", "/api/supplier/show?id=" + supplierId)
-  .then(function (response) {
-    if (response.code != 0) {
-      ElMessage.error(response.message);
-    } else {
-      console.log(response.data);
-      baseInfoData.value = response.data;
-      //获取发票信息
-      getInvoiceInfo();
-      //获取联系人信息
-      getSupplierContacts();
-    }
-  });
 
+const getSupplier = () => {
+  if (supplierId == undefined) {
+    ElMessage.error("需提供供应商信息！");
+  } else {
+    //获取基础信息
+    http
+      .request<AjaxResponse>("get", "/api/supplier/show?id=" + supplierId)
+      .then(function (response) {
+        if (response.code != 0) {
+          ElMessage.error(response.message);
+        } else {
+          console.log(response.data);
+          baseInfoData.value = response.data;
+          //获取发票信息
+          getInvoiceInfo();
+          //获取联系人信息
+          getSupplierContacts();
+        }
+      });
+  }
+};
+
+onBeforeMount(() => {
+  getSupplier();
+});
 </script>
 
 <template>

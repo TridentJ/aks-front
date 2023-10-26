@@ -40,7 +40,8 @@ export default {
       component: () => import("@/views/purchase/render.vue"),
       meta: {
         title: "采购详情",
-        showLink: false
+        showLink: false,
+        dynamicLevel: 3
       }
     },
     {
@@ -49,7 +50,8 @@ export default {
       component: () => import("@/views/purchase/edit.vue"),
       meta: {
         title: "修改采购",
-        showLink: false
+        showLink: false,
+        dynamicLevel: 3
       }
     }
   ]

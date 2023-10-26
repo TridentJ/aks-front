@@ -161,7 +161,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
             useMultiTagsStoreHook().handleTags("push", {
               path: route.path,
               name: route.name,
-              meta: route.meta,
+              meta: route.meta
             });
           }
         }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 //import axios from "axios";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { http } from "@/utils/http";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { ElMessage } from "element-plus";
@@ -22,9 +22,7 @@ initToDetail("render");
 //const route = useRoute();
 const customerId = getParameter.id;
 //console.log("render customerId:", customerId);
-if (customerId == undefined) {
-  ElMessage.error("需提供客户信息！");
-}
+
 //console.log("route:" + route.query.id);
 
 const baseInfoData = ref<CustomerBaseInfo>({
@@ -96,27 +94,37 @@ const editCustomer = () => {
   toDetail(
     {
       id: customerId,
-      supplierName: customerNameLittle
+      customerName: customerNameLittle
     },
     "edit"
   );
 };
 
-//获取基础信息
-http
-  .request<AjaxResponse>("get", "/api/customer/show?id=" + customerId)
-  .then(function (response) {
-    if (response.code != 0) {
-      ElMessage.error(response.message);
-    } else {
-      console.log(response.data);
-      baseInfoData.value = response.data;
-      //获取发票信息
-      getInvoiceInfo();
-      //获取联系人信息
-      getCustomerContacts();
-    }
-  });
+onBeforeMount(() => {
+  getCustomer();
+});
+
+const getCustomer = () => {
+  if (customerId == undefined) {
+    ElMessage.error("需提供客户信息！");
+  } else {
+    //获取基础信息
+    http
+      .request<AjaxResponse>("get", "/api/customer/show?id=" + customerId)
+      .then(function (response) {
+        if (response.code != 0) {
+          ElMessage.error(response.message);
+        } else {
+          console.log(response.data);
+          baseInfoData.value = response.data;
+          //获取发票信息
+          getInvoiceInfo();
+          //获取联系人信息
+          getCustomerContacts();
+        }
+      });
+  }
+};
 
 const changeTable = (tab, event) => {
   if (tab.index == 1) {

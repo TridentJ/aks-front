@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { Action, FormInstance, FormRules } from "element-plus";
 import SaveFill from "@iconify-icons/ri/save-3-fill";
 import EraseFill from "@iconify-icons/ri/delete-bin-5-fill";
@@ -146,7 +146,7 @@ const getInvoiceInfo = () => {
       "/api/invoiceBase/show?id=" + customerId + "&type=2"
     )
     .then(function (response) {
-      if (response.code == 1161) {
+      if (response.code == 1169) {
         ElMessage.info(response.message);
       } else if (response.code != 0) {
         ElMessage({
@@ -186,21 +186,32 @@ const getCustomerContacts = () => {
       }
     });
 };
-//获取信息
-http
-  .request<AjaxResponse>("get", "/api/customer/show?id=" + customerId)
-  .then(function (response) {
-    if (response.code != 0) {
-      ElMessage.error(response.message);
-    } else {
-      //console.log(response.data);
-      formBase.value = response.data;
-      //获取发票信息
-      getInvoiceInfo();
-      //获取联系人信息
-      getCustomerContacts();
-    }
-  });
+
+onBeforeMount(() => {
+  getCustomer();
+});
+
+const getCustomer = () => {
+  if (customerId == undefined) {
+    ElMessage.error("需提供客户信息！");
+  } else {
+    //获取基础信息
+    http
+      .request<AjaxResponse>("get", "/api/customer/show?id=" + customerId)
+      .then(function (response) {
+        if (response.code != 0) {
+          ElMessage.error(response.message);
+        } else {
+          console.log(response.data);
+          baseInfoData.value = response.data;
+          //获取发票信息
+          getInvoiceInfo();
+          //获取联系人信息
+          getCustomerContacts();
+        }
+      });
+  }
+};
 
 const addOrUpdateInvoiceInfo = async index => {
   let result = 0;
@@ -425,7 +436,14 @@ const successUpdateCustomer = () => {
       useMultiTagsStoreHook().handleTags("splice", "/customer/edit");
       //切换到最后一个标签
       const newRoute = useMultiTagsStoreHook().handleTags("slice");
-      router.push({ path: newRoute[0].path });
+      //console.log(newRoute);
+      if (newRoute[0]?.query) {
+        router.push({ name: newRoute[0].name, query: newRoute[0].query });
+      } else if (newRoute[0]?.params) {
+        router.push({ name: newRoute[0].name, params: newRoute[0].params });
+      } else {
+        router.push({ path: newRoute[0].path });
+      }
     });
 };
 

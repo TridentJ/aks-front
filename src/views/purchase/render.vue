@@ -1,11 +1,12 @@
 <script setup lang="ts">
 //import axios from "axios";
-import { ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import { http } from "@/utils/http";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { ElMessage } from "element-plus";
 import { PurchaseInfo } from "@/interface/PurchaseInterface";
 import { PurchaseCargo, PurchaseCargoFull } from "@/interface/PurchaseCargoInterface";
+import { Edit } from "@element-plus/icons-vue";
 import { useDetail } from "./PurchaseRouter";
 
 defineOptions({
@@ -18,10 +19,12 @@ initToDetail("render", "purchase");
 //const route = useRoute();
 const purchaseId = getParameter.id;
 //console.log("render purchaseId:", purchaseId);
-if (purchaseId == undefined) {
-  ElMessage.error("需提供供应商信息！");
-}
+
 //console.log("route:" + route.query.id);
+//渲染前触发
+onBeforeMount(() => {
+  getPurchase();
+});
 
 const purchaseCargoData = ref<PurchaseCargoFull[]>([]);
 //const purchaseInfoData = ref<PurchaseInfo>();
@@ -72,18 +75,24 @@ const purchaseInfoData = ref<PurchaseInfo>({
   comments: null
 });
 
-//获取基础信息
-http
-  .request<AjaxResponse>("get", "/api/purchase/show?id=" + purchaseId)
-  .then(function (response) {
-    if (response.code != 0) {
-      ElMessage.error(response.message);
-    } else {
-      console.log(response.data);
-      purchaseInfoData.value = response.data;
-      getPurchaseCargo();
-    }
-  });
+const getPurchase = () => {
+  //获取基础信息
+  if (purchaseId == undefined) {
+    ElMessage.error("需提供供应商信息！");
+  } else {
+    http
+      .request<AjaxResponse>("get", "/api/purchase/show?id=" + purchaseId)
+      .then(function (response) {
+        if (response.code != 0) {
+          ElMessage.error(response.message);
+        } else {
+          console.log(response.data);
+          purchaseInfoData.value = response.data;
+          getPurchaseCargo();
+        }
+      });
+  }
+};
 
 const getPurchaseCargo = () => {
   http
@@ -470,11 +479,80 @@ const gotoSupplier = () => {
                 </template>
                 {{ item.availableNum }}
               </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">单价</div>
+                </template>
+                {{ item.price }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">总价</div>
+                </template>
+                {{ item.totalPrice }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">价差</div>
+                </template>
+                {{ item.balanceCost }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">物流公司</div>
+                </template>
+                {{ item.expressCompany }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">物流单号</div>
+                </template>
+                {{ item.expressId }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">收货地址</div>
+                </template>
+                {{ item.deliverAddress }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">状态</div>
+                </template>
+                <template v-if="item.state === 1"><el-tag class="ml-2" type="info"> 冻结 </el-tag></template>
+                <template v-else-if="item.state === 2"><el-tag class="ml-2" color="#CCFF33"> 正常</el-tag> </template>
+                <template v-else-if="item.state === 3"><el-tag class="ml-2" type="success"> 归档 </el-tag></template>
+                <template v-else-if="item.state === 0"><el-tag class="ml-2" type="danger"> 删除 </el-tag></template>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">创建时间</div>
+                </template>
+                {{ item.createTime }}
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">最后更新时间</div>
+                </template>
+                {{ item.updateTime }}
+              </el-descriptions-item>
+              <el-descriptions-item :span="3">
+                <template #label>
+                  <div class="cell-item">备注</div>
+                </template>
+                {{ item.comments }}
+              </el-descriptions-item>
             </el-descriptions>
           </el-card>
         </template>
       </el-tab-pane>
     </el-tabs>
+    <br/>
+    <el-row justify="center">
+      <el-col :span="4">
+        <el-button type="primary" :icon="Edit" @click="editPurchase">编辑</el-button>
+      </el-col>
+    </el-row>
   </el-card>
 </template>
 
