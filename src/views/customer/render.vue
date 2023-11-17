@@ -11,6 +11,7 @@ import {
   CustomerContactInfo
 } from "@/interface/CustomerInterface";
 import { useDetail } from "./customerRouter";
+import { deleteTag } from "@/interface/AksTag";
 
 defineOptions({
   name: "CustomerRender"
@@ -91,6 +92,7 @@ const editCustomer = () => {
   if (baseInfoData.value.customerName.length > 10) {
     customerNameLittle = baseInfoData.value.customerName.substring(0, 10) + "...";
   }
+  deleteTag("/customer/render", getParameter);
   toDetail(
     {
       id: customerId,

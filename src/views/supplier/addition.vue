@@ -16,6 +16,7 @@ import {
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { useDetail } from "./supplierRouter";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { deleteTag } from "@/interface/AksTag";
 
 defineOptions({
   name: "SupplierAddition"
@@ -346,6 +347,7 @@ const successAddInvoiceAndContacts = () => {
     .then(() => {
       //删除编辑标签
       useMultiTagsStoreHook().handleTags("splice", "/supplier/addition");
+      //deleteTag("/supplier/add", getParameter);
       //跳转到详情页
       redirectDetailPage();
     })

@@ -7,7 +7,9 @@ import { ElMessage } from "element-plus";
 import { PurchaseInfo } from "@/interface/PurchaseInterface";
 import { PurchaseCargo, PurchaseCargoFull } from "@/interface/PurchaseCargoInterface";
 import { Edit } from "@element-plus/icons-vue";
-import { useDetail } from "./PurchaseRouter";
+import { useDetail } from "./purchaseRouter";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { deleteTag } from "@/interface/AksTag";
 
 defineOptions({
   name: "PurchaseRender"
@@ -86,7 +88,7 @@ const getPurchase = () => {
         if (response.code != 0) {
           ElMessage.error(response.message);
         } else {
-          console.log(response.data);
+          //console.log(response.data);
           purchaseInfoData.value = response.data;
           getPurchaseCargo();
         }
@@ -104,12 +106,31 @@ const getPurchaseCargo = () => {
       if (response.code == 1344) {
         ElMessage.info(response.message);
       } else if (response.code == 0) {
-        console.log(response.data);
+        //console.log(response.data);
         purchaseCargoData.value = response.data;
       } else {
         ElMessage.error(response.message);
       }
     });
+};
+
+const redirectEditPage = () => {
+  let purchaseNameLittle = purchaseInfoData.value.purchaseName;
+  if (purchaseNameLittle.length > 10) {
+    purchaseNameLittle = purchaseNameLittle.substring(0, 10) + "...";
+  }
+  //删除标签
+  //console.log(getParameter);
+  deleteTag("/purchase/render", getParameter);
+  //useMultiTagsStoreHook().handleTags("splice", "/purchase/render");
+  toDetail(
+    {
+      id: purchaseId,
+      purchaseName: purchaseNameLittle
+    },
+    "edit",
+    "purchase"
+  );
 };
 
 const gotoSupplier = () => {
@@ -550,7 +571,7 @@ const gotoSupplier = () => {
     <br/>
     <el-row justify="center">
       <el-col :span="4">
-        <el-button type="primary" :icon="Edit" @click="editPurchase">编辑</el-button>
+        <el-button type="primary" :icon="Edit" @click="redirectEditPage">编辑</el-button>
       </el-col>
     </el-row>
   </el-card>

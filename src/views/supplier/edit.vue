@@ -15,6 +15,8 @@ import {
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { useDetail } from "./supplierRouter";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { deleteTag } from "@/interface/AksTag";
+import { AjaxResponseList } from "@/api/AjaxResponseList";
 
 defineOptions({
   name: "SupplierEdit"
@@ -97,7 +99,20 @@ const addInvoiceForm = () => {
 
 const deleteInvoiceForm = (index: number) => {
   if (index >= 0) {
-    formInvoice.value.splice(index, 1);
+    const id = formInvoice.value[index].id;
+    http
+      .request<AjaxResponseList>("get", "/api/invoiceBase/delete?id=" + id)
+      .then(function (response) {
+        if (response.code == 0) {
+          formInvoice.value.splice(index, 1);
+          formInvoiceEditState.value.splice(index, 1);
+          ElMessage.success("删除成功！");
+        } else {
+          ElMessage.error(response.message);
+        }
+      });
+  } else {
+    ElMessage.error("需删除的目标不合法！");
   }
 };
 
@@ -129,9 +144,21 @@ const addSupplierContactForm = () => {
 };
 
 const deleteSupplierContactForm = (index: number) => {
-  //const index = form_supplier_contact.indexOf(item);
   if (index >= 0) {
-    formSupplierContact.value.splice(index, 1);
+    const id = formSupplierContact.value[index].id;
+    http
+      .request<AjaxResponseList>("get", "/api/supplierContacts/delete?id=" + id)
+      .then(function (response) {
+        if (response.code == 0) {
+          formSupplierContact.value.splice(index, 1);
+          formSupplierContactEditState.value.splice(index, 1);
+          ElMessage.success("删除成功！");
+        } else {
+          ElMessage.error(response.message);
+        }
+      });
+  } else {
+    ElMessage.error("需删除的目标不合法！");
   }
 };
 
@@ -425,7 +452,8 @@ const successUpdateSupplier = () => {
   })
     .then(() => {
       //删除编辑标签
-      useMultiTagsStoreHook().handleTags("splice", "/supplier/edit");
+      //useMultiTagsStoreHook().handleTags("splice", "/supplier/edit");
+      deleteTag("/supplier/edit", getParameter);
       //跳转到详情页
       redirectDetailPage();
     })
@@ -433,7 +461,8 @@ const successUpdateSupplier = () => {
       //保持不动
       //resetSupplier();
       //删除标签
-      useMultiTagsStoreHook().handleTags("splice", "/supplier/edit");
+      //useMultiTagsStoreHook().handleTags("splice", "/supplier/edit");
+      deleteTag("/supplier/edit", getParameter);
       //切换到最后一个标签
       const newRoute = useMultiTagsStoreHook().handleTags("slice");
       if (newRoute[0]?.query) {
@@ -653,9 +682,18 @@ const supplierContactsState = [
                         >保存</el-button
                       >
                     </template>
-                    <el-button type="danger" @click="deleteInvoiceForm(index)"
-                      >删除</el-button
+                    <el-popconfirm
+                      title="确认删除？"
+                      confirm-button-text="删除"
+                      confirm-button-type="danger"
+                      cancel-button-type="primary"
+                      cancel-button-text="取消"
+                      @confirm="deleteInvoiceForm(index)"
                     >
+                      <template #reference>
+                        <el-button type="danger" title="删除">删除</el-button>
+                      </template>
+                    </el-popconfirm>
                   </div>
                 </div>
               </template>
@@ -806,11 +844,18 @@ const supplierContactsState = [
                           >保存</el-button
                         >
                       </template>
-                      <el-button
-                        type="danger"
-                        @click="deleteSupplierContactForm(index)"
-                        >删除</el-button
+                      <el-popconfirm
+                        title="确认删除？"
+                        confirm-button-text="删除"
+                        confirm-button-type="danger"
+                        cancel-button-type="primary"
+                        cancel-button-text="取消"
+                        @confirm="deleteSupplierContactForm(index)"
                       >
+                        <template #reference>
+                          <el-button type="danger" title="删除">删除</el-button>
+                        </template>
+                      </el-popconfirm>
                     </div>
                   </div>
                 </template>

@@ -16,6 +16,7 @@ import {
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { useDetail } from "./customerRouter";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { deleteTag } from "@/interface/AksTag";
 
 defineOptions({
   name: "CustomerAddition"
@@ -291,7 +292,8 @@ const successAddInvoiceAndContacts = () => {
   })
     .then(() => {
       //删除编辑标签
-      useMultiTagsStoreHook().handleTags("splice", "/customer/addition");
+      deleteTag("/customer/addition");
+      // useMultiTagsStoreHook().handleTags("splice", "/customer/addition");
       //跳转到详情页
       redirectDetailPage();
     })

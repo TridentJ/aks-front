@@ -171,16 +171,17 @@ function deleteDynamicTag(obj: any, current: any, tag?: string) {
   const valueIndex: number = multiTags.value.findIndex((item: any) => {
     if (item.query) {
       if (item.path === obj.path) {
-        return item.query === obj.query;
+        return JSON.stringify(item.query) === JSON.stringify(obj.query);
       }
     } else if (item.params) {
       if (item.path === obj.path) {
-        return item.params === obj.params;
+        return JSON.stringify(item.params) === JSON.stringify(obj.params);
       }
     } else {
       return item.path === obj.path;
     }
   });
+  //console.log("index:", valueIndex);
 
   const spliceRoute = (
     startIndex?: number,
@@ -236,13 +237,13 @@ function deleteDynamicTag(obj: any, current: any, tag?: string) {
 }
 
 function deleteMenu(item, tag?: string) {
+  //console.log(item);
   deleteDynamicTag(item, item.path, tag);
   handleAliveRoute(route as ToRouteType);
 }
 
 function onClickDrop(key, item, selectRoute?: RouteConfigs) {
   if (item && item.disabled) return;
-
   let selectTagRoute;
   if (selectRoute) {
     selectTagRoute = {
@@ -253,7 +254,21 @@ function onClickDrop(key, item, selectRoute?: RouteConfigs) {
       params: selectRoute?.params
     };
   } else {
-    selectTagRoute = { path: route.path, meta: route.meta };
+    if (route.query) {
+      selectTagRoute = {
+        path: route.path,
+        meta: route.meta,
+        query: route.query
+      };
+    } else if (route.params) {
+      selectTagRoute = {
+        path: route.path,
+        meta: route.meta,
+        params: route.params
+      };
+    } else {
+      selectTagRoute = { path: route.path, meta: route.meta };
+    }
   }
   //console.log(selectTagRoute);
   // 当前路由信息

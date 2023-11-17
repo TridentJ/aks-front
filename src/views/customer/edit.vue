@@ -15,6 +15,8 @@ import {
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { useDetail } from "./customerRouter";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { deleteTag } from "@/interface/AksTag";
+import { AjaxResponseList } from "@/api/AjaxResponseList";
 
 defineOptions({
   name: "CustomerEdit"
@@ -100,7 +102,20 @@ const addInvoiceForm = () => {
 
 const deleteInvoiceForm = (index: number) => {
   if (index >= 0) {
-    formInvoice.value.splice(index, 1);
+    const id = formInvoice.value[index].id;
+    http
+      .request<AjaxResponseList>("get", "/api/invoiceBase/delete?id=" + id)
+      .then(function (response) {
+        if (response.code == 0) {
+          formInvoice.value.splice(index, 1);
+          formInvoiceEditState.value.splice(index, 1);
+          ElMessage.success("删除成功！");
+        } else {
+          ElMessage.error(response.message);
+        }
+      });
+  } else {
+    ElMessage.error("需删除的目标不合法！");
   }
 };
 
@@ -134,7 +149,20 @@ const addCustomerContactForm = () => {
 const deleteCustomerContactForm = (index: number) => {
   //const index = form_customer_contact.indexOf(item);
   if (index >= 0) {
-    formCustomerContact.value.splice(index, 1);
+    const id = formCustomerContact.value[index].id;
+    http
+      .request<AjaxResponseList>("get", "/api/customerContacts/delete?id=" + id)
+      .then(function (response) {
+        if (response.code == 0) {
+          formCustomerContact.value.splice(index, 1);
+          formCustomerContactEditState.value.splice(index, 1);
+          ElMessage.success("删除成功！");
+        } else {
+          ElMessage.error(response.message);
+        }
+      });
+  } else {
+    ElMessage.error("需删除的目标不合法！");
   }
 };
 
@@ -202,8 +230,9 @@ const getCustomer = () => {
         if (response.code != 0) {
           ElMessage.error(response.message);
         } else {
-          console.log(response.data);
-          baseInfoData.value = response.data;
+          //console.log(response.data);
+          //baseInfoData.value = response.data;
+          formBase.value = response.data;
           //获取发票信息
           getInvoiceInfo();
           //获取联系人信息
@@ -383,15 +412,15 @@ const updateCustomer = (formEl: FormInstance | undefined) => {
         .catch(function (error) {
           if (error.response) {
             //请求成功发出，服务器也相应，但状态码不是200
-            console.log(error.response.state);
+            //console.log(error.response.state);
             ElMessage.error("服务器错误！", error.response.state);
           } else if (error.request) {
             //请求成功发出，服务器无响应
-            console.log(error.request);
+            //console.log(error.request);
             ElMessage.error("服务器无响应！", error.request);
           } else {
             //请求发送失败
-            console.log("Error", error.message);
+            //console.log("Error", error.message);
             ElMessage.error("更新客户失败！", error.message);
           }
         });
@@ -425,7 +454,8 @@ const successUpdateCustomer = () => {
   })
     .then(() => {
       //删除编辑标签
-      useMultiTagsStoreHook().handleTags("splice", "/customer/edit");
+      //useMultiTagsStoreHook().handleTags("splice", "/customer/edit");
+      deleteTag("/customer/edit", getParameter);
       //跳转到详情页
       redirectDetailPage();
     })
@@ -433,7 +463,8 @@ const successUpdateCustomer = () => {
       //保持不动
       //resetCustomer();
       //删除标签
-      useMultiTagsStoreHook().handleTags("splice", "/customer/edit");
+      //useMultiTagsStoreHook().handleTags("splice", "/customer/edit");
+      deleteTag("/customer/edit", getParameter);
       //切换到最后一个标签
       const newRoute = useMultiTagsStoreHook().handleTags("slice");
       //console.log(newRoute);
@@ -654,9 +685,18 @@ const customerContactsState = [
                         >保存</el-button
                       >
                     </template>
-                    <el-button type="danger" @click="deleteInvoiceForm(index)"
-                      >删除</el-button
+                    <el-popconfirm
+                      title="确认删除？"
+                      confirm-button-text="删除"
+                      confirm-button-type="danger"
+                      cancel-button-type="primary"
+                      cancel-button-text="取消"
+                      @confirm="deleteInvoiceForm(index)"
                     >
+                      <template #reference>
+                        <el-button type="danger" title="删除">删除</el-button>
+                      </template>
+                    </el-popconfirm>
                   </div>
                 </div>
               </template>
@@ -807,11 +847,18 @@ const customerContactsState = [
                           >保存</el-button
                         >
                       </template>
-                      <el-button
-                        type="danger"
-                        @click="deleteCustomerContactForm(index)"
-                        >删除</el-button
+                      <el-popconfirm
+                        title="确认删除？"
+                        confirm-button-text="删除"
+                        confirm-button-type="danger"
+                        cancel-button-type="primary"
+                        cancel-button-text="取消"
+                        @confirm="deleteCustomerContactForm(index)"
                       >
+                        <template #reference>
+                          <el-button type="danger" title="删除">删除</el-button>
+                        </template>
+                      </el-popconfirm>
                     </div>
                   </div>
                 </template>

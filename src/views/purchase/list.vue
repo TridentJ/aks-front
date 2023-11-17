@@ -5,7 +5,7 @@ import { http } from "@/utils/http";
 import { Delete, Edit, View, User, DataLine } from "@element-plus/icons-vue";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { AjaxResponseList } from "@/api/AjaxResponseList";
-import { useDetail } from "./PurchaseRouter";
+import { useDetail } from "./purchaseRouter";
 import { ElMessage } from "element-plus";
 
 defineOptions({

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 //import axios from "axios";
+import { Delete } from "@element-plus/icons-vue";
 import { onBeforeMount, onMounted, ref } from "vue";
 import SaveFill from "@iconify-icons/ri/save-3-fill";
 import EraseFill from "@iconify-icons/ri/delete-bin-5-fill";
@@ -9,19 +10,19 @@ import { AjaxResponse } from "@/api/AjaxResponse";
 import { Action, ElMessage, ElMessageBox } from "element-plus";
 import { PurchaseBaseInfo, PurchaseInfo } from "@/interface/PurchaseInterface";
 import { PurchaseCargo, PurchaseCargoFull } from "@/interface/PurchaseCargoInterface";
-import { useDetail } from "./PurchaseRouter";
+import { useDetail } from "./purchaseRouter";
 import { SupplierSelectList } from "@/interface/SupplierInterface";
 import { CargoSelectList } from "@/interface/CargoInterface";
 import { AjaxResponseList } from "@/api/AjaxResponseList";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import { compileString } from "sass";
+import { deleteTag } from "@/interface/AksTag";
 
 defineOptions({
   name: "PurchaseEdit"
 });
 
 //获取传递的参数
-const { initToDetail, getParameter, toDetail } = useDetail();
+const { initToDetail, getParameter, toDetail, router } = useDetail();
 initToDetail("edit", "purchase");
 const purchaseId = getParameter.id;
 
@@ -148,7 +149,10 @@ const getPurchaseCargo = () => {
         ElMessage.error(response.message);
       } else {
         formPurchaseCargo.value = response.data;
-        console.log(formPurchaseCargo.value);
+        for (let i = 0; i < formPurchaseCargo.value.length; i++) {
+          cargoEditState.value.push(true);
+        }
+        //console.log(formPurchaseCargo.value);
       }
     });
 };
@@ -262,64 +266,57 @@ const test = () => {
 };
 */
 
-const addPurchase = () => {
+const updatePurchase = () => {
   http
-    .request<AjaxResponse>("post", "/api/purchase/add", {
+    .request<AjaxResponse>("post", "/api/purchase/update", {
       data: formPurchase.value
     })
     .then(function (response) {
       if (response.code == 0) {
         //成功
-        formPurchase.value.id = Number(response.data);
-        purchaseId = Number(response.data);
+        //formPurchase.value.id = Number(response.data);
+        //purchaseId = Number(response.data);
         ElMessage.success("添加采购订单基础信息成功！");
-        //successAddPurchase();
-
+        successUpdatePurchase();
       } else {
         ElMessage.error(response.message);
-        failureAddPurchase();
+        failureUpdatePurchase();
       }
     });
 };
-const failureAddPurchase = () => {
-  ElMessageBox.alert("添加采购订单基础信息失败！", "警告", {
-    confirmButtonText: "重新添加"
+const failureUpdatePurchase = () => {
+  ElMessageBox.alert("更新采购订单基础信息失败！", "警告", {
+    confirmButtonText: "继续更新"
     /*callback: (action: Action) => {}*/
   });
 };
 
-const failureAddPurchaseCargo = message => {
-  ElMessageBox.alert("添加采购订单基础信息成功！但" + message, "警告", {
-    confirmButtonText: "前往补填",
-    type: "warning",
-    dangerouslyUseHTMLString: true,
-    callback: (action: Action) => {
-      if (action === "confirm") {
-        //删除编辑标签
-        useMultiTagsStoreHook().handleTags("splice", "/purchase/addition");
-        redirectEditPage();
-      } else {
-        ElMessage.error("请知晓：采购货物添加存在失败！！！" + message);
-      }
-    }
-  });
-};
-
-const successAddPurchase = () => {
-  ElMessageBox.confirm("添加采购订单成功", "成功", {
+const successUpdatePurchase = () => {
+  ElMessageBox.confirm("更新采购订单成功", "成功", {
     confirmButtonText: "查看详情",
-    cancelButtonText: "继续添加",
+    cancelButtonText: "关闭当前页",
     type: "success"
   })
     .then(() => {
-      //删除编辑标签
-      useMultiTagsStoreHook().handleTags("splice", "/purchase/addition");
+      //删除标签
+      //useMultiTagsStoreHook().handleTags("splice", "/purchase/edit");
+      deleteTag("/purchase/edit", getParameter);
       //跳转到详情页
       redirectDetailPage();
     })
     .catch((action: Action) => {
       //保持不动，并清空内容
-      resetPurchase();
+      //resetPurchase();
+      deleteTag("/supplier/edit", getParameter);
+      //切换到最后一个标签
+      const newRoute = useMultiTagsStoreHook().handleTags("slice");
+      if (newRoute[0]?.query) {
+        router.push({ name: newRoute[0].name, query: newRoute[0].query });
+      } else if (newRoute[0]?.params) {
+        router.push({ name: newRoute[0].name, params: newRoute[0].params });
+      } else {
+        router.push({ path: newRoute[0].path });
+      }
     });
 };
 
@@ -448,12 +445,22 @@ const addPurchaseCargoForm = () => {
 const deleteCargoForm = (index: number) => {
   //const index = form_customer_contact.indexOf(item);
   if (index >= 0) {
-    formPurchaseCargo.value.splice(index, 1);
-    cargoSelectButton.value.splice(index, 1);
-    //cargoInfo.value.splice(index, 1);
-    cargoEditState.value.splice(index, 1);
+    const id = String(formPurchaseCargo.value[index].id);
+    http
+      .request<AjaxResponseList>("get", "/api/purchaseCargo/delete?id=" + id)
+      .then(function (response) {
+        if (response.code == 0) {
+          formPurchaseCargo.value.splice(index, 1);
+          cargoSelectButton.value.splice(index, 1);
+          //cargoInfo.value.splice(index, 1);
+          cargoEditState.value.splice(index, 1);
+          ElMessage.success("删除成功！");
+        } else {
+          ElMessage.error(response.message);
+        }
+      });
   } else {
-    ElMessage.error("删除失败！");
+    ElMessage.error("需删除的目标不合法！");
   }
 };
 
@@ -523,15 +530,6 @@ const getSelectedCargo = (
   brand: string,
   description: string
 ) => {
-  //cargoNameAddition.value = cargoName;
-  //formPurchase.value.cargoId = Number(cargoId);
-  /*
-  cargoInfo.value[currentCargoIndex].cargoName = cargoName;
-  cargoInfo.value[currentCargoIndex].id = Number(cargoId);
-  cargoInfo.value[currentCargoIndex].cargoType = cargoType;
-  cargoInfo.value[currentCargoIndex].brand = brand;
-  cargoInfo.value[currentCargoIndex].description = description;
-  */
   formPurchaseCargo.value[currentCargoIndex].cargoName = cargoName;
   formPurchaseCargo.value[currentCargoIndex].cargoType = cargoType;
   formPurchaseCargo.value[currentCargoIndex].brand = brand;
@@ -1222,6 +1220,19 @@ const stateSelect = [
             </el-col>
           </el-row>
         </el-form>
+        <el-row justify="center">
+          <el-col :span="4">
+            <el-button type="primary" @click="updatePurchase()">
+              <IconifyIconOffline :icon="SaveFill" />&nbsp;&nbsp;更新
+            </el-button>
+            <el-button type="warning" @click="resetPurchase()">
+              <IconifyIconOffline :icon="EraseFill" />&nbsp;&nbsp;重置
+            </el-button>
+            <!--        <el-button type="warning" @click="test()">
+                      <IconifyIconOffline :icon="EraseFill" />&nbsp;&nbsp;test
+                    </el-button>-->
+          </el-col>
+        </el-row>
       </el-tab-pane>
       <el-tab-pane label="货物信息">
         <el-dialog v-model="cargoDialogVisible" title="选择货物">
@@ -1313,7 +1324,18 @@ const stateSelect = [
                         @click="addOrUpdateCargoInfo(index)"
                       >保存</el-button>
                     </template>
-                    <el-button type="danger" @click="deleteCargoForm(index)">删除</el-button>
+                    <el-popconfirm
+                      title="确认删除？"
+                      confirm-button-text="删除"
+                      confirm-button-type="danger"
+                      cancel-button-type="primary"
+                      cancel-button-text="取消"
+                      @confirm="deleteCargoForm(index)"
+                    >
+                      <template #reference>
+                        <el-button type="danger" title="删除">删除</el-button>
+                      </template>
+                    </el-popconfirm>
                   </div>
                 </div>
               </template>
@@ -1430,19 +1452,18 @@ const stateSelect = [
       </el-tab-pane>
     </el-tabs>
     <br />
+<!--
     <el-row justify="center">
       <el-col :span="4">
-        <el-button type="primary" @click="addPurchase()">
-          <IconifyIconOffline :icon="SaveFill" />&nbsp;&nbsp;提交
+        <el-button type="primary" @click="updatePurchase()">
+          <IconifyIconOffline :icon="SaveFill" />&nbsp;&nbsp;更新
         </el-button>
         <el-button type="warning" @click="resetPurchase()">
           <IconifyIconOffline :icon="EraseFill" />&nbsp;&nbsp;重置
         </el-button>
-<!--        <el-button type="warning" @click="test()">
-          <IconifyIconOffline :icon="EraseFill" />&nbsp;&nbsp;test
-        </el-button>-->
       </el-col>
     </el-row>
+    -->
   </el-card>
 </template>
 

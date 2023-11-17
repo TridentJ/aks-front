@@ -11,7 +11,7 @@ import { SupplierSelectList } from "@/interface/SupplierInterface";
 import { CargoSelectList } from "@/interface/CargoInterface";
 import { AjaxResponse } from "@/api/AjaxResponse";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import { useDetail } from "@/views/purchase/PurchaseRouter";
+import { useDetail } from "@/views/purchase/purchaseRouter";
 import { AjaxResponseList } from "@/api/AjaxResponseList";
 import { PurchaseCargo } from "@/interface/PurchaseCargoInterface";
 

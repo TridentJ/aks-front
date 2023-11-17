@@ -11,6 +11,7 @@ import {
   SupplierContactInfo
 } from "@/interface/SupplierInterface";
 import { useDetail } from "./supplierRouter";
+import { deleteTag } from "@/interface/AksTag";
 
 defineOptions({
   name: "SupplierRender"
@@ -59,7 +60,7 @@ const getInvoiceInfo = () => {
           type: "error"
         });
       } else {
-        console.log(response.data);
+        //console.log(response.data);
         invoiceInfoData.value = response.data;
       }
     });
@@ -80,7 +81,7 @@ const getSupplierContacts = () => {
           type: "error"
         });
       } else {
-        console.log(response.message);
+        //console.log(response.message);
         supplierContactInfoData.value = response.data;
       }
     });
@@ -89,8 +90,10 @@ const getSupplierContacts = () => {
 const editSupplier = () => {
   let supplierNameLittle = baseInfoData.value.supplierName;
   if (baseInfoData.value.supplierName.length > 10) {
-    supplierNameLittle = baseInfoData.value.supplierName.substring(0, 10) + "...";
+    supplierNameLittle =
+      baseInfoData.value.supplierName.substring(0, 10) + "...";
   }
+  deleteTag("/supplier/render");
   toDetail(
     {
       id: supplierId,
@@ -111,7 +114,7 @@ const getSupplier = () => {
         if (response.code != 0) {
           ElMessage.error(response.message);
         } else {
-          console.log(response.data);
+          //console.log(response.data);
           baseInfoData.value = response.data;
           //获取发票信息
           getInvoiceInfo();
